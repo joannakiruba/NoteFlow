@@ -4,23 +4,19 @@ import OpenAI from 'openai';
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
 // Check if using OpenRouter
-const isOpenRouter = apiKey?.startsWith('sk-or-v1');
+const isGroq = !!apiKey;
 
 // Debugging: Log key prefix to verify loaded environment
 console.log('AI Config:', {
   keyPrefix: apiKey ? apiKey.substring(0, 8) + '...' : 'MISSING',
-  isOpenRouter,
-  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : 'default(openai)'
+  provider: 'Groq',
+  baseURL: 'https://api.groq.com/openai/v1'
 });
 
 const openai = new OpenAI({
-  apiKey: apiKey,
-  baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-  dangerouslyAllowBrowser: true, // Required for client-side only usage
-  defaultHeaders: isOpenRouter ? {
-    'HTTP-Referer': 'https://noteflow.app', // Optional: Site URL
-    'X-Title': 'NoteFlow', // Optional: Site Name
-  } : undefined
+  apiKey,
+  baseURL: 'https://api.groq.com/openai/v1',
+  dangerouslyAllowBrowser: true
 });
 
 export const processTextWithAI = async (text: string): Promise<string> => {
@@ -51,7 +47,7 @@ export const processTextWithAI = async (text: string): Promise<string> => {
   try {
     const response = await openai.chat.completions.create({
       // User specified model ID
-      model: isOpenRouter ? "google/gemini-3.1-pro-preview" : "gpt-4o-mini", 
+      model: "llama-3.3-70b-versatile", 
       messages: [
         { role: "system", content: "You are a helpful assistant that summarizes text into structured Markdown notes." },
         { role: "user", content: prompt }
